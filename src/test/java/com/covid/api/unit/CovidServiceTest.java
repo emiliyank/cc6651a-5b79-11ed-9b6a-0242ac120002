@@ -21,6 +21,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -81,45 +84,33 @@ public class CovidServiceTest {
         verify(countryRepository, times(1)).findByCountryCode(validCountryCode);
     }
 
-    @Test
-    public void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException() {
-        String notValidCountryCode = "bG";
+    @ParameterizedTest
+    @ValueSource(strings = {"bG", "Bg", "bg", "BGG"})
+    public void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
         ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
-            covidService.getCountry(notValidCountryCode);
+            covidService.getCountry(input);
         });
 
         assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
-        verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
+        verify(countryRepository, never()).findByCountryCode(input);
     }
 
-    @Test
-    public void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException() {
-        String notValidCountryCode = null;
+    @ParameterizedTest
+    @NullSource
+    public void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
         ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
-            covidService.getCountry(notValidCountryCode);
+            covidService.getCountry(input);
         });
 
         assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
-        verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
+        verify(countryRepository, never()).findByCountryCode(input);
     }
 
-    @Test
-    public void givenCountryCodeLongerThanTwoCharactersWhenGetCountryThenThrowValidationCovidApplicationException() {
-        String notValidCountryCode = "bG";
-        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
-            covidService.getCountry(notValidCountryCode);
-        });
-
-        assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
-        verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
-    }
-
-    @Test
-    public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException() {
-        String validCountryCode = "ZZ";
-        when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(Optional.empty());
+    @ParameterizedTest
+    @ValueSource(strings = {"ZZ", "PZ", "PR"})
+    public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException(String input) {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            covidService.getCountry(validCountryCode);
+            covidService.getCountry(input);
         });
 
         assertEquals(exception.getMessage(), COUNTRY_NOT_FOUND);
