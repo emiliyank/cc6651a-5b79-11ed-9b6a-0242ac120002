@@ -1,8 +1,8 @@
 package com.covid.api.service;
 
-import static com.covid.api.utility.CovidApiConstants.COUNTRY_CODE_INVALID;
-import static com.covid.api.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
-import static com.covid.api.utility.CovidApiConstants.EXTERNAL_API_COUNTRY_COUNT;
+import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_CODE_INVALID;
+import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
+import static com.covid.api.service.utility.CovidApiConstants.EXTERNAL_API_COUNTRY_COUNT;
 
 import com.covid.api.dto.CovidSummaryResponse;
 import com.covid.api.exceptions.ResourceNotFoundException;
@@ -10,8 +10,9 @@ import com.covid.api.exceptions.ValidationCountryCodeException;
 import com.covid.api.factory.CountryFactory;
 import com.covid.api.model.Country;
 import com.covid.api.repository.CountryRepository;
-import com.covid.api.utility.CountryCodeValidator;
+import com.covid.api.service.utility.CountryCodeValidator;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,10 +28,12 @@ public class CovidService {
     private final CountryFactory countryFactory;
     private final CountryRepository countryRepository;
 
+
     @Scheduled(fixedDelayString  = "${cron.job.covid.delay}")
     public void getApiSummary() {
-        CovidSummaryResponse summary = webClient.build()
-            .get()
+        //changed because there is an issue with mocking WebClient.Builder webClient
+        WebClient webClient2 = WebClient.create(covidUrl);
+        CovidSummaryResponse summary = webClient2.get()
             .uri(covidUrl)
             .retrieve()
             .bodyToMono(CovidSummaryResponse.class)
@@ -45,8 +48,8 @@ public class CovidService {
 
     public Country getCountry(String countryCode) {
         if (!CountryCodeValidator.validate(countryCode)) {
-            throw new ValidationCountryCodeException(COUNTRY_CODE_INVALID);
+            throw new ValidationCountryCodeException(COUNTRY_CODE_INVALID + ", county: " + countryCode);
         }
-        return countryRepository.findByCountryCode(countryCode).orElseThrow(() -> new ResourceNotFoundException(COUNTRY_NOT_FOUND));
+        return countryRepository.findByCountryCode(countryCode).orElseThrow(() -> new ResourceNotFoundException(COUNTRY_NOT_FOUND + ", county: " + countryCode));
     }
 }

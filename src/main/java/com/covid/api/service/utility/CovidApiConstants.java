@@ -1,4 +1,4 @@
-package com.covid.api.utility;
+package com.covid.api.service.utility;
 
 public class CovidApiConstants {
     public static final int EXTERNAL_API_COUNTRY_COUNT = 197;
