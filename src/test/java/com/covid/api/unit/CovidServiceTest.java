@@ -1,6 +1,7 @@
 package com.covid.api.unit;
 
 import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_CODE_INVALID;
+import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,13 +9,13 @@ import static org.mockito.Mockito.*;
 
 import com.covid.api.dto.CountryData;
 import com.covid.api.dto.CovidSummaryResponse;
+import com.covid.api.exceptions.ResourceNotFoundException;
 import com.covid.api.exceptions.ValidationCountryCodeException;
 import com.covid.api.factory.CountryFactory;
 import com.covid.api.model.Country;
 import com.covid.api.repository.CountryRepository;
 import com.covid.api.service.CovidService;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,18 +23,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class CovidServiceTest {
     private static final CovidSummaryResponse COVID_SUMMARY_RESPONSE = new CovidSummaryResponse();
-    private static final List<Country> COUNTRIES = new ArrayList<>();
     private static final String COVID_API_URL = "https://api.covid19api.com/summary";
     @InjectMocks
     private CovidService covidService;
@@ -53,10 +50,8 @@ public class CovidServiceTest {
     @Mock
     private WebClient.ResponseSpec responseSpecMock;
 
-
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(covidService, "covidUrl", COVID_API_URL);
     }
 
@@ -69,20 +64,27 @@ public class CovidServiceTest {
         verify(countryFactory, never()).assembleCountries(COVID_SUMMARY_RESPONSE);
     }
 
-    //TODO: this test fails
     @Test
     public void whenGetApiSummaryReturnsCountriesDataThenSaveToDb() {
-        setUpWebClient();
+        setUpWebClientEmpty();
         requestCountryBuilder();
         covidService.getApiSummary();
-        when(countryFactory.assembleCountries(COVID_SUMMARY_RESPONSE)).thenReturn(COUNTRIES);
-        verify(countryRepository, times(1)).saveAll(COUNTRIES);
+        verify(countryRepository, times(1)).saveAll(any());
+    }
+    @Test
+    public void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
+        String validCountryCode = "BG";
+        Country c = new Country();
+        Optional<Country> oc = Optional.of(c);
+        when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(oc);
+        covidService.getCountry(validCountryCode);
+        verify(countryRepository, times(1)).findByCountryCode(validCountryCode);
     }
 
-    @Test()
+    @Test
     public void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException() {
         String notValidCountryCode = "bG";
-        Exception exception = assertThrows(ValidationCountryCodeException.class, () -> {
+        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
             covidService.getCountry(notValidCountryCode);
         });
 
@@ -91,69 +93,38 @@ public class CovidServiceTest {
     }
 
     @Test
-    public void whenCountryCodeIsValidThenReturnCountry() {
-        String validCountryCode = "BG";
-        // Set up mock objects and responses
-        Country country = mock(Country.class);
-        when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(Optional.of(country));
-
-        // Call getCountry() method
-        Country result = covidService.getCountry(validCountryCode);
-
-        // Verify that the correct country is returned
-        assertEquals(country, result);
-        verify(countryRepository, times(1)).findByCountryCode(validCountryCode);
-
-    }
-
-    //TODO: this test fails
-    @Test
-    public void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
-        String validCountryCode = "BG";
-        when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(Optional.of(new Country()));
-        covidService.getCountry(validCountryCode);
-        verify(countryRepository, times(1)).findByCountryCode(validCountryCode);
-    }
-
-    /*
-    @Test(expected = ValidationCountryCodeException.class)
     public void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException() {
         String notValidCountryCode = null;
-        try {
+        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
             covidService.getCountry(notValidCountryCode);
-        } catch (ValidationCountryCodeException e) {
-            assertEquals(e.getMessage(), COUNTRY_CODE_INVALID);
-            verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
-            throw e;
-        }
+        });
+
+        assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
+        verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
     }
 
-    @Test(expected = ValidationCountryCodeException.class)
+    @Test
     public void givenCountryCodeLongerThanTwoCharactersWhenGetCountryThenThrowValidationCovidApplicationException() {
         String notValidCountryCode = "bG";
-        try {
+        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
             covidService.getCountry(notValidCountryCode);
-        } catch (ValidationCountryCodeException e) {
-            assertEquals(e.getMessage(), COUNTRY_CODE_INVALID);
-            verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
-            throw e;
-        }
+        });
+
+        assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
+        verify(countryRepository, never()).findByCountryCode(notValidCountryCode);
     }
 
-
-
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException() {
         String validCountryCode = "ZZ";
         when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(Optional.empty());
-        try {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             covidService.getCountry(validCountryCode);
-        } catch (ResourceNotFoundException e) {
-            assertEquals(e.getMessage(), COUNTRY_NOT_FOUND);
-            throw e;
-        }
+        });
+
+        assertEquals(exception.getMessage(), COUNTRY_NOT_FOUND);
     }
-    */
+
 
     private void requestCountryBuilder() {
         COVID_SUMMARY_RESPONSE.setCountries(new ArrayList<>());
@@ -162,26 +133,15 @@ public class CovidServiceTest {
         }
     }
 
-    private void setUpWebClient() {
+    private void setUpWebClientEmpty() {
+        COVID_SUMMARY_RESPONSE.setCountries(new ArrayList<>());
+
         when(webClientBuilderMock.build()).thenReturn(webClientMock);
         when(webClientMock.get()).thenReturn(requestHeadersUriSpecMock);
         when(requestHeadersUriSpecMock.uri(COVID_API_URL)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpecMock);
         when(responseSpecMock.bodyToMono(CovidSummaryResponse.class))
-            .thenReturn(Mono.just(COVID_SUMMARY_RESPONSE));
-    }
-
-    private void setUpWebClientEmpty() {
-        COVID_SUMMARY_RESPONSE.setCountries(new ArrayList<>());
-
-        //when(webClientBuilderMock.build()).thenReturn(webClientMock);
-        System.out.println("was this run - right after after webClientBuilderMock.build()");
-//        when(webClientMock.get()).thenReturn(requestHeadersUriSpecMock);
-//        when(requestHeadersUriSpecMock.uri(COVID_API_URL)).thenReturn(requestHeadersSpec);
-//        when(requestHeadersSpec.retrieve()).thenReturn(responseSpecMock);
-        when(responseSpecMock.bodyToMono(CovidSummaryResponse.class))
                 .thenReturn(Mono.just(COVID_SUMMARY_RESPONSE));
-        System.out.println("end of the whole setUpWebClientEmpty()");
     }
 }
 

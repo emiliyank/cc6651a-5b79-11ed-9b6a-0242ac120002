@@ -31,9 +31,8 @@ public class CovidService {
 
     @Scheduled(fixedDelayString  = "${cron.job.covid.delay}")
     public void getApiSummary() {
-        //changed because there is an issue with mocking WebClient.Builder webClient
-        WebClient webClient2 = WebClient.create(covidUrl);
-        CovidSummaryResponse summary = webClient2.get()
+        CovidSummaryResponse summary = webClient.build()
+            .get()
             .uri(covidUrl)
             .retrieve()
             .bodyToMono(CovidSummaryResponse.class)
@@ -48,8 +47,8 @@ public class CovidService {
 
     public Country getCountry(String countryCode) {
         if (!CountryCodeValidator.validate(countryCode)) {
-            throw new ValidationCountryCodeException(COUNTRY_CODE_INVALID + ", county: " + countryCode);
+            throw new ValidationCountryCodeException(COUNTRY_CODE_INVALID);
         }
-        return countryRepository.findByCountryCode(countryCode).orElseThrow(() -> new ResourceNotFoundException(COUNTRY_NOT_FOUND + ", county: " + countryCode));
+        return countryRepository.findByCountryCode(countryCode).orElseThrow(() -> new ResourceNotFoundException(COUNTRY_NOT_FOUND));
     }
 }
