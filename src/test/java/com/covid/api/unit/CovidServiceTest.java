@@ -2,8 +2,7 @@ package com.covid.api.unit;
 
 import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_CODE_INVALID;
 import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -108,38 +107,31 @@ public class CovidServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"bG", "Bg", "bg", "BGG"})
     public void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
-        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
-            covidService.getCountry(input);
-        });
+        assertThatThrownBy(() -> covidService.getCountry(input))
+                .isInstanceOf(ValidationCountryCodeException.class)
+                .hasMessage(COUNTRY_CODE_INVALID);
 
-        assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
         verifyNoInteractions(countryRepository);
     }
 
     @ParameterizedTest
     @NullSource
     public void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
-        ValidationCountryCodeException exception = assertThrows(ValidationCountryCodeException.class, () -> {
-            covidService.getCountry(input);
-        });
+        assertThatThrownBy(() -> covidService.getCountry(input))
+                .isInstanceOf(ValidationCountryCodeException.class)
+                .hasMessage(COUNTRY_CODE_INVALID);
 
-        assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
         verifyNoInteractions(countryRepository);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"ZZ", "PZ", "PR"})
     public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException(String input) {
-        //GIVEN
         when(countryRepository.findByCountryCode(input)).thenThrow(new ResourceNotFoundException(COUNTRY_NOT_FOUND));
 
-        //WHEN
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            covidService.getCountry(input);
-        });
-
-        //THEN
-        assertEquals(exception.getMessage(), COUNTRY_NOT_FOUND);
+        assertThatThrownBy(() -> covidService.getCountry(input))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(COUNTRY_NOT_FOUND);
     }
 
     private void requestCountryBuilder() {
