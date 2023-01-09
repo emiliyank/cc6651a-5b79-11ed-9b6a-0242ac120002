@@ -5,9 +5,10 @@ import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.covid.api.dto.CountryData;
@@ -70,9 +71,8 @@ public class CovidServiceTest {
         covidService.getApiSummary();
 
         //THEN
-        verify(countryRepository, never()).deleteAll();
-        verify(countryRepository, never()).saveAll(any());
-        verify(countryFactory, never()).assembleCountries(COVID_SUMMARY_RESPONSE);
+        verifyNoInteractions(countryRepository);
+        verifyNoInteractions(countryFactory);
     }
 
     @Test
@@ -85,7 +85,10 @@ public class CovidServiceTest {
         covidService.getApiSummary();
 
         //THEN
+        verify(countryRepository, times(1)).deleteAll();
         verify(countryRepository, times(1)).saveAll(any());
+        verify(countryFactory, times(1)).assembleCountries(any());
+        verifyNoMoreInteractions(countryRepository, countryFactory);
     }
     @Test
     public void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
@@ -110,7 +113,7 @@ public class CovidServiceTest {
         });
 
         assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
-        verify(countryRepository, never()).findByCountryCode(input);
+        verifyNoInteractions(countryRepository);
     }
 
     @ParameterizedTest
@@ -121,19 +124,23 @@ public class CovidServiceTest {
         });
 
         assertEquals(exception.getMessage(), COUNTRY_CODE_INVALID);
-        verify(countryRepository, never()).findByCountryCode(input);
+        verifyNoInteractions(countryRepository);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"ZZ", "PZ", "PR"})
     public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException(String input) {
+        //GIVEN
+        when(countryRepository.findByCountryCode(input)).thenThrow(new ResourceNotFoundException(COUNTRY_NOT_FOUND));
+
+        //WHEN
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             covidService.getCountry(input);
         });
 
+        //THEN
         assertEquals(exception.getMessage(), COUNTRY_NOT_FOUND);
     }
-
 
     private void requestCountryBuilder() {
         COVID_SUMMARY_RESPONSE.setCountries(new ArrayList<>());
