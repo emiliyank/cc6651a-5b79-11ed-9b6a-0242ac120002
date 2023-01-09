@@ -5,7 +5,10 @@ import static com.covid.api.service.utility.CovidApiConstants.COUNTRY_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.covid.api.dto.CountryData;
 import com.covid.api.dto.CovidSummaryResponse;
@@ -60,8 +63,13 @@ public class CovidServiceTest {
 
     @Test
     public void whenGetApiSummaryIsCachingThenDoNothing() {
+        //GIVEN
         setUpWebClientEmpty();
+
+        //WHEN
         covidService.getApiSummary();
+
+        //THEN
         verify(countryRepository, never()).deleteAll();
         verify(countryRepository, never()).saveAll(any());
         verify(countryFactory, never()).assembleCountries(COVID_SUMMARY_RESPONSE);
@@ -69,18 +77,28 @@ public class CovidServiceTest {
 
     @Test
     public void whenGetApiSummaryReturnsCountriesDataThenSaveToDb() {
+        //GIVEN
         setUpWebClientEmpty();
         requestCountryBuilder();
+
+        //WHEN
         covidService.getApiSummary();
+
+        //THEN
         verify(countryRepository, times(1)).saveAll(any());
     }
     @Test
     public void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
+        //GIVEN
         String validCountryCode = "BG";
         Country c = new Country();
         Optional<Country> oc = Optional.of(c);
         when(countryRepository.findByCountryCode(validCountryCode)).thenReturn(oc);
+
+        //WHEN
         covidService.getCountry(validCountryCode);
+
+        //THEN
         verify(countryRepository, times(1)).findByCountryCode(validCountryCode);
     }
 
@@ -135,7 +153,3 @@ public class CovidServiceTest {
                 .thenReturn(Mono.just(COVID_SUMMARY_RESPONSE));
     }
 }
-
-
-
-
