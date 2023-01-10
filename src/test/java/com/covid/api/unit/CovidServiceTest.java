@@ -35,7 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-public class CovidServiceTest {
+class CovidServiceTest {
     private static final CovidSummaryResponse COVID_SUMMARY_RESPONSE = new CovidSummaryResponse();
     private static final String COVID_API_URL = "https://api.covid19api.com/summary";
     @InjectMocks
@@ -57,12 +57,12 @@ public class CovidServiceTest {
     private WebClient.ResponseSpec responseSpecMock;
 
     @BeforeEach
-    public void setup() {
+    private void setup() {
         ReflectionTestUtils.setField(covidService, "covidUrl", COVID_API_URL);
     }
 
     @Test
-    public void whenGetApiSummaryIsCachingThenDoNothing() {
+    void whenGetApiSummaryIsCachingThenDoNothing() {
         //GIVEN
         setUpWebClientEmpty();
 
@@ -75,7 +75,7 @@ public class CovidServiceTest {
     }
 
     @Test
-    public void whenGetApiSummaryReturnsCountriesDataThenSaveToDb() {
+    void whenGetApiSummaryReturnsCountriesDataThenSaveToDb() {
         //GIVEN
         setUpWebClientEmpty();
         requestCountryBuilder();
@@ -90,7 +90,7 @@ public class CovidServiceTest {
         verifyNoMoreInteractions(countryRepository, countryFactory);
     }
     @Test
-    public void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
+    void givenValidCountryCodeWhenGetCountryThenReturnCountry() {
         //GIVEN
         String validCountryCode = "BG";
         Country c = new Country();
@@ -106,7 +106,7 @@ public class CovidServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"bG", "Bg", "bg", "BGG"})
-    public void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
+    void givenNotValidCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
         assertThatThrownBy(() -> covidService.getCountry(input))
                 .isInstanceOf(ValidationCountryCodeException.class)
                 .hasMessage(COUNTRY_CODE_INVALID);
@@ -116,7 +116,7 @@ public class CovidServiceTest {
 
     @ParameterizedTest
     @NullSource
-    public void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
+    void givenNullCountryCodeWhenGetCountryThenThrowValidationCovidApplicationException(String input) {
         assertThatThrownBy(() -> covidService.getCountry(input))
                 .isInstanceOf(ValidationCountryCodeException.class)
                 .hasMessage(COUNTRY_CODE_INVALID);
@@ -126,7 +126,7 @@ public class CovidServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ZZ", "PZ", "PR"})
-    public void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException(String input) {
+    void givenNonExistentCountryCodeWhenGetCountryThenThrowResourceNotFoundException(String input) {
         when(countryRepository.findByCountryCode(input)).thenThrow(new ResourceNotFoundException(COUNTRY_NOT_FOUND));
 
         assertThatThrownBy(() -> covidService.getCountry(input))

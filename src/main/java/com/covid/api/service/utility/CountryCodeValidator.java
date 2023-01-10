@@ -3,6 +3,7 @@ package com.covid.api.service.utility;
 import java.util.regex.Pattern;
 
 public class CountryCodeValidator {
+    private CountryCodeValidator(){}
     public static boolean validate(String countryCode) {
         if(countryCode == null) {
             return false;
