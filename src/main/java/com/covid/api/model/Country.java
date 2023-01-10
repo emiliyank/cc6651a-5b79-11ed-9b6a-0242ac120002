@@ -16,7 +16,7 @@ import lombok.Setter;
 public class Country {
     @Id
     private String id;
-    private String country;
+    private String name;
     private String countryCode;
     private String slug;
     private Long newConfirmed;
