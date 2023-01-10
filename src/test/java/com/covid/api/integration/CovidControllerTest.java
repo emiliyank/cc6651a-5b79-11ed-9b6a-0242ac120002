@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CovidApplication.class)
 @DirtiesContext
-public class CovidControllerTest {
+class CovidControllerTest {
     @Value("${server.port}")
     private static int serverPort;
     private static final String COVID_API_RESOURCE_PATH = "http://localhost:" + serverPort + "/api/v1/";
@@ -33,7 +33,7 @@ public class CovidControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void whenGetExternalDataThenReturn200Ok() throws Exception {
+    void whenGetExternalDataThenReturn200Ok() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(COVID_API_RESOURCE_PATH + "allCovidData")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
@@ -41,10 +41,10 @@ public class CovidControllerTest {
     }
 
     @Test
-    public void whenGetCovidDataThenReturn200Ok() throws Exception {
+    void whenGetCovidDataThenReturn200Ok() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(COVID_API_RESOURCE_PATH + "country/" + "BG")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
-        verify(covidService, times(1)).getCountry(eq("BG"));
+        verify(covidService, times(1)).getCountry("BG");
     }
 }

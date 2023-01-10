@@ -17,7 +17,7 @@ public class CovidController {
     private CovidService covidService;
 
     @GetMapping("/allCovidData")
-    public ResponseEntity getExternalData() {
+    public ResponseEntity<Void> getExternalData() {
         covidService.getApiSummary();
         return new ResponseEntity<>(HttpStatus.OK);
     }
