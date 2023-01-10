@@ -6,25 +6,24 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CountryCodeValidatorTest {
     @ParameterizedTest
     @NullSource
     public void givenNullCountryCodeThenReturnFalse(String input) {
-        assertFalse(CountryCodeValidator.validate(input));
+        assertThat(CountryCodeValidator.validate(input)).isFalse();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"bG", "Bg", "bg", "BGG"})
     public void givenNotValidCountryCodeThenReturnFalse(String input) {
-        assertFalse(CountryCodeValidator.validate(input));
+        assertThat(CountryCodeValidator.validate(input)).isFalse();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"BG", "DE", "UK", "FR", "RO"})
-    public void givenValidCountryCodeThenReturnTrue(String inpput) {
-        assertTrue(CountryCodeValidator.validate(inpput));
+    public void givenValidCountryCodeThenReturnTrue(String input) {
+        assertThat(CountryCodeValidator.validate(input)).isTrue();
     }
 }
