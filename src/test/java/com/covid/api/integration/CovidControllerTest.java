@@ -33,7 +33,7 @@ public class CovidControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void whenGetExternalDataThenReturn200Ok() throws Exception {
+    void whenGetExternalDataThenReturn200Ok() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(COVID_API_RESOURCE_PATH + "allCovidData")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
@@ -41,10 +41,10 @@ public class CovidControllerTest {
     }
 
     @Test
-    public void whenGetCovidDataThenReturn200Ok() throws Exception {
+    void whenGetCovidDataThenReturn200Ok() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(COVID_API_RESOURCE_PATH + "country/" + "BG")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
-        verify(covidService, times(1)).getCountry(eq("BG"));
+        verify(covidService, times(1)).getCountry("BG");
     }
 }
