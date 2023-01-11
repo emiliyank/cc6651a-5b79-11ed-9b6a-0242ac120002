@@ -1,5 +1,16 @@
 # Covid Api
 ***
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=coverage)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=bugs)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=emiliyank_cc6651a-5b79-11ed-9b6a-0242ac120002)
 ## API usage
 - [ ] GET request -> http://localhost:8085/api/v1/country/{countryCode} 
   * country code must be uppercase only 2 characters long 
