@@ -19,7 +19,7 @@
 ***
 
 ## Installation:
-### Clone Github repository
+### Clone GitHub repository
 
 ```
 git clone https://github.com/emiliyank/cc6651a-5b79-11ed-9b6a-0242ac120002.git
