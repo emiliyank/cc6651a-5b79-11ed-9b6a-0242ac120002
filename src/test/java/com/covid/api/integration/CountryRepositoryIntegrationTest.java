@@ -17,12 +17,15 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 class CountryRepositoryIntegrationTest {
+    private final String COUNTRY_CODE_RO = "RO";
+    private final String COUNTRY_CODE_YY = "YY";
 
     @Autowired
     private CountryRepository countryRepository;
@@ -55,7 +58,7 @@ class CountryRepositoryIntegrationTest {
         countryRepository.saveAll(countries);
 
         // THEN
-        assertEquals(2, countryRepository.findAll().size());
+        assertEquals(4, countryRepository.findAll().size());
     }
 
     @Test
@@ -70,16 +73,35 @@ class CountryRepositoryIntegrationTest {
         // WHEN, THEN
         assertThatThrownBy(() -> countryRepository.save(country))
                 .isInstanceOf(JpaSystemException.class);
-        assertEquals(0, countryRepository.findAll().size());
+        assertEquals(2, countryRepository.findAll().size());
     }
 
     @Test
-    void whenNoCountries_thenReturnEmptyResult() {
+    void whenNoCountriesAdded_thenReturnEmptyResult() {
         // WHEN
         List<Country> allCountries = countryRepository.findAll();
 
         // THEN
-        assertEquals(0, allCountries.size());
+        assertEquals(2, allCountries.size());
+    }
+
+    @Test
+    void whenGetInitiallyAddedCountries_thenReturnResult() {
+        // WHEN
+        Optional<Country> optionalCountry = countryRepository.findByCountryCode(COUNTRY_CODE_RO);
+
+        // THEN
+        assertTrue(optionalCountry.isPresent());
+        assertEquals(COUNTRY_CODE_RO, optionalCountry.get().getCountryCode());
+    }
+
+    @Test
+    void whenGetNonExistentCountry_thenReturnEmptyResult() {
+        // WHEN
+        Optional<Country> optionalCountry = countryRepository.findByCountryCode(COUNTRY_CODE_YY);
+
+        // THEN
+        assertFalse(optionalCountry.isPresent());
     }
 
     private List<Country> getTestCountries() {

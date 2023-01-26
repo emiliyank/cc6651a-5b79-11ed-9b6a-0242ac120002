@@ -1,3 +1,9 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/1-create-table-country-tests.sql
+        file: db/changelog/1-create-table-country.sql
+  - include:
+        file: db/changelog/2-update-country-add-primary-key.sql
+
+#queries only on test DB
+  - include:
+      file: db/changelog/1-seed-test-data.sql
