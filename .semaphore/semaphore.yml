@@ -20,4 +20,4 @@ blocks:
       jobs:
         - name: Tests
           commands:
-            - mvn clean test
+            - mvn test
