@@ -21,3 +21,9 @@ blocks:
         - name: Tests
           commands:
             - mvn test
+      prologue:
+        commands:
+          - sem-version java 11
+          - checkout
+          - cache restore
+          - mvn -q test-compile -Dmaven.test.skip=true
