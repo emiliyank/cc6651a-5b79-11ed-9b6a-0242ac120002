@@ -1,0 +1,23 @@
+version: v1.0
+name: Java
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Build
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - sem-version java 11
+            - checkout
+            - cache restore
+            - 'mvn -q package jmeter:configure -Dmaven.test.skip=true'
+            - cache store
+  - name: Tests
+    task:
+      jobs:
+        - name: Tests
+          commands:
+            - mvn clean test
