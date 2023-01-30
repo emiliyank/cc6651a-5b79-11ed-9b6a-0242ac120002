@@ -2,38 +2,39 @@ import com.covid.api.exceptions.CovidExceptionHandler
 import com.covid.api.exceptions.ResourceNotFoundException
 import com.covid.api.exceptions.ValidationCountryCodeException
 import org.springframework.http.HttpStatus
-import org.springframework.web.context.request.WebRequest
 import spock.lang.Specification
 
 class CovidExceptionHandlerTest extends Specification {
 
     def exceptionHandler = new CovidExceptionHandler()
+    final INVALID_COUNTRY_CODE = "Invalid country code"
+    final HTTP_BAD_REQUEST = HttpStatus.BAD_REQUEST.value()
+    final COUNTRY_NOT_FOUND = "Country not found"
+    final HTTP_NOT_FOUND = HttpStatus.NOT_FOUND.value()
 
-    def "validationCountryCode() should return BAD_REQUEST status and correct error message"() {
+    def "should return BAD_REQUEST status and correct error message"() {
+        given:
+        def ex = new ValidationCountryCodeException(INVALID_COUNTRY_CODE)
+
         when:
-        def ex = new ValidationCountryCodeException("Invalid country code")
-        def request = Mock(WebRequest)
-        request.getDescription(_) >> "Invalid country code"
-        def result = exceptionHandler.validationCountryCode(ex, request)
+        def result = exceptionHandler.validationCountryCode(ex)
 
         then:
-        result.statusCode.value() == HttpStatus.BAD_REQUEST.value()
-        result.body.statusCode == HttpStatus.BAD_REQUEST.value()
-        result.body.message == "Invalid country code"
-        result.body.path == "Invalid country code"
+        result.statusCode.value() == HTTP_BAD_REQUEST
+        result.body.statusCode == HTTP_BAD_REQUEST
+        result.body.message == INVALID_COUNTRY_CODE
     }
 
-    def "resourceNotFound() should return NOT_FOUND status and correct error message"() {
+    def "should return NOT_FOUND status and correct error message"() {
+        given:
+        def ex = new ResourceNotFoundException(COUNTRY_NOT_FOUND)
+
         when:
-        def ex = new ResourceNotFoundException("Country not found")
-        def request = Mock(WebRequest)
-        request.getDescription(_) >> "Country not found"
-        def result = exceptionHandler.resourceNotFound(ex, request)
+        def result = exceptionHandler.resourceNotFound(ex)
 
         then:
-        result.statusCode.value() == HttpStatus.NOT_FOUND.value()
-        result.body.statusCode == HttpStatus.NOT_FOUND.value()
-        result.body.message == "Country not found"
-        result.body.path == "Country not found"
+        result.statusCode.value() == HTTP_NOT_FOUND
+        result.body.statusCode == HTTP_NOT_FOUND
+        result.body.message == COUNTRY_NOT_FOUND
     }
 }

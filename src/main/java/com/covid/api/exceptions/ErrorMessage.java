@@ -12,5 +12,5 @@ public class ErrorMessage {
     private int statusCode;
     private LocalDateTime date;
     private String message;
-    private String path;
+    private StackTraceElement[] stackTrace;
 }
