@@ -1,0 +1,21 @@
+version: "3"
+services:
+  covid-api-wejago:
+    image: emowejago/covid-api-wejago
+    ports:
+      - "8080:8080"
+    networks:
+      - covid-api-network
+    depends_on:
+      - mysqldb
+
+  mysqldb:
+    image: mysql:8
+    networks:
+      - covid-api-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bootdb
+
+networks:
+  covid-api-network:
