@@ -1,0 +1,37 @@
+stages:
+  - test
+  - build jar
+  - build and push docker image
+test_job:
+  image: maven:3.6.2-jdk-11-slim
+  stage: test
+  script:
+    - pwd
+    - mvn clean
+    - mvn compile
+    - mvn test
+  tags:
+    - test
+  only:
+    - master
+build:
+  image: maven:3.6.2-jdk-11-slim
+  stage: build jar
+  script:
+    - mvn clean install -Dspring.profiles.active=dev && mvn package -B -e -Dspring.profiles.active=dev
+  artifacts:
+    paths:
+      - target/*.jar
+  only:
+    - master
+docker build:
+  services:
+    - docker:19.03.13-dind
+  image: docker:19.03.13-dind
+  stage: build and push docker image
+  script:
+    - docker build --build-arg SPRING_ACTIVE_PROFILE=dev -t $DOCKER_REPO:latest .
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD docker.io
+    - docker push $DOCKER_REPO:latest
+  only:
+    - master
